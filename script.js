@@ -49,32 +49,48 @@ function clickedBox(element) {
 }
 
 function bot(runBot) {
-    let arr = [];
-    if (runBot) {
-        playerSign = 'O';
-        for (let i = 0; i < allBox.length; i++) {
-            if (allBox[i].childElementCount == 0) {
-                arr.push(i);
-            }
+    if (!runBot) return;
+
+    let emptyBoxes = [];
+    for (let i = 0; i < allBox.length; i++) {
+        if (allBox[i].childElementCount === 0) {
+            emptyBoxes.push(i);
         }
-        let randomBox = arr[Math.floor(Math.random() * arr.length)];
-        if (arr.length > 0) {
-            if (players.classList.contains('player')) {
-                allBox[randomBox].innerHTML = `<i class="${playerXIcon}"></i>`;
-                players.classList.remove('active');
-                playerSign = 'X';
-                allBox[randomBox].setAttribute('id', playerSign);
-            } else {
-                allBox[randomBox].innerHTML = `<i class="${playerOIcon}"></i>`;
-                players.classList.remove('active');
-                allBox[randomBox].setAttribute('id', playerSign);
-            }
-            selectWinner();
-        }
-        allBox[randomBox].style.pointerEvents = 'none';
-        playBoard.style.pointerEvents = "auto";
-        playerSign = "X";
     }
+
+    // Try to win or block
+    let bestMove = getBestMove(emptyBoxes, "O"); // Try to win
+    if (bestMove === -1) {
+        bestMove = getBestMove(emptyBoxes, "X"); // Try to block player
+    }
+
+    // Pick random if nothing urgent
+    if (bestMove === -1) {
+        bestMove = emptyBoxes[Math.floor(Math.random() * emptyBoxes.length)];
+    }
+
+    const chosenBox = allBox[bestMove];
+    chosenBox.innerHTML = `<i class="${playerOIcon}"></i>`;
+    chosenBox.setAttribute("id", "O");
+    chosenBox.style.pointerEvents = "none";
+
+    players.classList.remove("active");
+    playerSign = "O";
+    selectWinner();
+    playBoard.style.pointerEvents = "auto";
+    playerSign = "X";
+}
+
+function getBestMove(emptyBoxes, sign) {
+    for (let i of emptyBoxes) {
+        allBox[i].setAttribute("id", sign);
+        if (checkWin(sign)) {
+            allBox[i].removeAttribute("id");
+            return i;
+        }
+        allBox[i].removeAttribute("id");
+    }
+    return -1;
 }
 
 function getIdVal(classname) {
@@ -85,6 +101,19 @@ function checkIdSign(val1, val2, val3, sign) {
     if (getIdVal(val1) == sign && getIdVal(val2) == sign && getIdVal(val3) == sign) {
         return true;
     }
+}
+
+function checkWin(sign) {
+    return (
+        checkIdSign(1, 2, 3, sign) ||
+        checkIdSign(4, 5, 6, sign) ||
+        checkIdSign(7, 8, 9, sign) ||
+        checkIdSign(1, 4, 7, sign) ||
+        checkIdSign(2, 5, 8, sign) ||
+        checkIdSign(3, 6, 9, sign) ||
+        checkIdSign(1, 5, 9, sign) ||
+        checkIdSign(3, 5, 7, sign)
+    );
 }
 
 function selectWinner() {
@@ -106,7 +135,6 @@ function selectWinner() {
             }, 700);
             wonText.textContent = "Match has been drawn!";
         }
-
     }
 }
 
