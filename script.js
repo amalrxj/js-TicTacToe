@@ -15,30 +15,37 @@ window.onload = () => {
     selectXBtn.onclick = () => {
         selectBox.classList.add('hide');
         playBoard.classList.add('show');
+        players.setAttribute('class', 'players active player'); // Player X starts first
+        playerSign = 'X'; // Start with Player X
     }
     selectOBtn.onclick = () => {
         selectBox.classList.add('hide');
         playBoard.classList.add('show');
         players.setAttribute('class', 'players active player');
+        playerSign = 'O'; // Player O starts
     }
 }
 
 let playerXIcon = "fas fa-xmark",
     playerOIcon = "far fa-circle",
-    playerSign = 'X',
+    playerSign = 'X',  // Default start with Player X
     runBot = true;
 
 function clickedBox(element) {
+    // Prevent a box from being clicked if it already has a move
+    if (element.innerHTML !== '') return;
+
     if (players.classList.contains('player')) {
         playerSign = 'O';
         element.innerHTML = `<i class="${playerOIcon}"></i>`;
-        players.classList.add('active');
+        players.classList.remove('active');
         element.setAttribute('id', playerSign);
     } else {
         element.innerHTML = `<i class="${playerXIcon}"></i>`;
         element.setAttribute('id', playerSign);
         players.classList.add('active');
     }
+
     selectWinner();
     playBoard.style.pointerEvents = "none";
     element.style.pointerEvents = 'none';
@@ -74,11 +81,10 @@ function bot(runBot) {
     chosenBox.setAttribute("id", "O");
     chosenBox.style.pointerEvents = "none";
 
-    players.classList.remove("active");
-    playerSign = "O";
+    players.classList.add("active");
+    playerSign = "X"; // Player X's turn next
     selectWinner();
     playBoard.style.pointerEvents = "auto";
-    playerSign = "X";
 }
 
 function getBestMove(emptyBoxes, sign) {
@@ -119,7 +125,6 @@ function checkWin(sign) {
 function selectWinner() {
     if (checkIdSign(1, 2, 3, playerSign) || checkIdSign(4, 5, 6, playerSign) || checkIdSign(7, 8, 9, playerSign) || checkIdSign(1, 4, 7, playerSign) || checkIdSign(2, 5, 8, playerSign) || checkIdSign(3, 6, 9, playerSign) || checkIdSign(1, 5, 9, playerSign) || checkIdSign(3, 5, 7, playerSign)) {
         runBot = false;
-        bot(runBot);
         setTimeout(() => {
             playBoard.classList.remove('show');
             resultBox.classList.add('show');
@@ -128,7 +133,6 @@ function selectWinner() {
     } else {
         if (getIdVal(1) != "" && getIdVal(2) != "" && getIdVal(3) != "" && getIdVal(4) != "" && getIdVal(5) != "" && getIdVal(6) != "" && getIdVal(7) != "" && getIdVal(8) != "" && getIdVal(9) != "") {
             runBot = false;
-            bot(runBot);
             setTimeout(() => {
                 resultBox.classList.add("show");
                 playBoard.classList.remove("show");
